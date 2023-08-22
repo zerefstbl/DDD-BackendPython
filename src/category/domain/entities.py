@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 import uuid
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class Category:
   
     id: uuid.UUID = field(

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import uuid
 
-from dataclasses import is_dataclass
+from dataclasses import is_dataclass, FrozenInstanceError
 
 from __seedwork.domain.value_objects import UniqueEntityId
 
@@ -43,3 +43,13 @@ class TestUniqueEntityIdUnit(unittest.TestCase):
             value_object = UniqueEntityId()
             self.assertTrue(uuid.UUID(value_object.id))
             mock_validate.assert_called_once()
+            
+    def test_is_imutable(self):
+        with self.assertRaises(FrozenInstanceError):
+            value_object = UniqueEntityId()
+            value_object.id = 'TESTE'
+
+    def test_if_return_string(self):
+        value_object = UniqueEntityId()
+        self.assertEqual(str(value_object), value_object.id)
+

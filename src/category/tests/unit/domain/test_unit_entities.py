@@ -1,11 +1,10 @@
-from dataclasses import is_dataclass
+from dataclasses import is_dataclass, FrozenInstanceError
 
 import unittest
 
 from category.domain.entities import Category
 
 from datetime import datetime
-
 
 
 class TestCategory(unittest.TestCase):
@@ -17,9 +16,9 @@ class TestCategory(unittest.TestCase):
     
     def test_constructor(self):
         category = Category(
-            name='Movie', 
-            description='Some Description', 
-            is_active=False, 
+            name='Movie',
+            description='Some Description',
+            is_active=False,
             created_at=datetime.now()
         )
         
@@ -39,4 +38,7 @@ class TestCategory(unittest.TestCase):
             category2.created_at.timestamp()
         )
     
-    
+    def test_is_imutable(self):
+        with self.assertRaises(FrozenInstanceError):
+            category = Category(name="Nome da Categoria")
+            category.name = "New Name"
