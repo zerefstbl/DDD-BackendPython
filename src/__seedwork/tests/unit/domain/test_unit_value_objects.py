@@ -1,13 +1,57 @@
 import unittest
 from unittest.mock import patch
 
+import json
+
 import uuid
 
-from dataclasses import is_dataclass, FrozenInstanceError
+from dataclasses import dataclass, is_dataclass, FrozenInstanceError
 
-from __seedwork.domain.value_objects import UniqueEntityId
+from __seedwork.domain.value_objects import ValueObject, UniqueEntityId
 
 from __seedwork.domain.exceptions import InvalidUuidException
+
+from abc import ABC
+
+
+@dataclass(frozen=True)
+class StubOneProp(ValueObject):
+    prop: str
+
+
+@dataclass(frozen=True)
+class StubTwoProps(ValueObject):
+    prop1: str
+    prop2: str
+
+class TestValueObject(unittest.TestCase):
+    
+    def test_if_is_a_dataclass(self):
+        self.assertTrue(is_dataclass(ValueObject))
+
+    def test_if_is_abc_class(self):
+        self.assertTrue(isinstance(ValueObject() , ABC))
+
+
+    def test_return_string_if_has_one_prop(self):
+        prop = "Prop"
+        value_object = StubOneProp(prop=prop)
+        self.assertEqual(str(value_object), prop)
+
+
+    def test_return_dict_if_has_more_one_prop(self):
+        props = json.dumps({
+            "prop1": "prop1",
+            "prop2": "prop2",
+        })
+        value_object = StubTwoProps(**json.loads(props))
+        self.assertEqual(props, str(value_object))
+
+    def test_is_immutable(self):
+        with self.assertRaises(FrozenInstanceError):
+            value_object = StubOneProp(prop="prop")
+            value_object.prop = "New Value"
+
 
 class TestUniqueEntityIdUnit(unittest.TestCase):
 
