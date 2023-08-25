@@ -107,3 +107,32 @@ class TestValidatorRules(unittest.TestCase):
                 validator,
                 ValidatorRules
             )
+
+    def test_throw_a_validation_exception_when_combine_two_or_more_rules(self):
+        with self.assertRaises(ValidationException) as assert_error:
+            validator = ValidatorRules.values(None, 'prop1')
+            validator = validator.required().string().max_length(max_length=1)
+
+        self.assertEqual(
+            assert_error.exception.args[0], "The prop1 is required")
+
+        with self.assertRaises(ValidationException) as assert_error:
+            validator = ValidatorRules.values(True, 'prop1')
+            validator.required().string().max_length(max_length=1)
+        self.assertEqual(
+            assert_error.exception.args[0], 'The prop1 must be a string')
+
+        with self.assertRaises(ValidationException) as assert_error:
+            ValidatorRules.values('Values', 'prop1').required(
+            ).string().max_length(max_length=2)
+
+        self.assertEqual(
+            assert_error.exception.args[0], 'The prop1 must be less than 2')
+
+    def test_valid_cases_with_combination_rules(self):
+        ValidatorRules.values('value', 'prop').required().string()
+        ValidatorRules.values(
+            'value', 'prop').required().string().max_length(5)
+        ValidatorRules.values(True, 'prop').required().boolean()
+        ValidatorRules.values(False, 'prop').required().boolean()
+        self.assertTrue(True)
