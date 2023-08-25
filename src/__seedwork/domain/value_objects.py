@@ -9,7 +9,7 @@ from abc import ABC
 from __seedwork.domain.exceptions import InvalidUuidException
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ValueObject(ABC):
 
     def __str__(self):
@@ -21,7 +21,7 @@ class ValueObject(ABC):
             })
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class UniqueEntityId(ValueObject):
     id: str = field(
         default_factory=lambda: str(uuid.uuid4())
