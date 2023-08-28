@@ -1,7 +1,9 @@
 import unittest
 
-from __seedwork.domain.validators import ValidatorRules
+from __seedwork.domain.validators import ValidatorRules, ValidatorFieldsInterface
 from __seedwork.domain.exceptions import ValidationException
+
+from dataclasses import fields
 
 
 class TestValidatorRules(unittest.TestCase):
@@ -135,4 +137,25 @@ class TestValidatorRules(unittest.TestCase):
             'value', 'prop').required().string().max_length(5)
         ValidatorRules.values(True, 'prop').required().boolean()
         ValidatorRules.values(False, 'prop').required().boolean()
-        self.assertTrue(True)
+        self.assertTrue(True)  # pylint: disable=redundant-unittest-assert
+
+
+class TestValidatorFieldsInterface(unittest.TestCase):
+
+    def test_throw_error_when_validate_method_is_not_implemented(self):
+        with self.assertRaises(TypeError) as assert_error:
+            # pylint: disable=abstract-class-instantiated
+            # pylint: disable=no-value-for-parameter
+            ValidatorFieldsInterface()
+        self.assertEqual(
+            assert_error.exception.args[0], "Can't instantiate abstract class ValidatorFieldsInterface with abstract method validate")
+
+    def test_init_none(self):  # sourcery skip: extract-duplicate-method
+        fields_class = fields(ValidatorFieldsInterface)
+        errors_field = fields_class[0]
+        self.assertEqual(errors_field.name, 'errors')
+        self.assertIsNone(errors_field.default)
+
+        validated_data_field = fields_class[1]
+        self.assertEqual(validated_data_field.name, 'validated_data')
+        self.assertIsNone(validated_data_field.default)
