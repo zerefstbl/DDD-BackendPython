@@ -2,9 +2,17 @@ import abc
 from abc import ABC
 
 from dataclasses import dataclass
-
 from typing import Any, Dict, List, Generic, TypeVar
+
+from rest_framework.serializers import Serializer
+from django.conf import settings
+
 from __seedwork.domain.exceptions import ValidationException
+
+if not settings.configured:
+    settings.configure(
+        USE_I18N=False
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,3 +59,19 @@ class ValidatorFieldsInterface(ABC, Generic[PropsValidated]):
     @abc.abstractmethod
     def validate(self, data: Any) -> bool:
         raise NotImplementedError()
+
+
+class DRFValidator(ValidatorFieldsInterface[PropsValidated], ABC):
+
+    def validate(self, data: Serializer) -> bool:
+        serializer = data
+
+        if serializer.is_valid():
+            self.validated_data = dict(serializer.validated_data)
+            return True
+
+        self.errors = {
+            field: [str(_error) for _error in _errors]
+            for field, _errors in serializer.errors.items()
+        }
+        return False
